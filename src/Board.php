@@ -9,31 +9,29 @@ use \Mooph\Exceptions\NonEmptyCellException;
 
 class Board
 {
-    private $maxCol;
+    private $rows;
+    private $columns;
 
-    private $maxRow;
-
-    /** @var array */
+    /**
+     * For efficient array handling the rows of the board are concatenated in a flattened array
+     * @var array
+     */
     private $cells;
 
 
     public function __construct($cols, $rows)
     {
-        $this->cols = $cols;
+        $this->columns = $cols;
         $this->rows = $rows;
 
         $this->clear();
     }
 
+    /**
+     */
     private function clear()
     {
-        $this->cells = array_fill_keys(
-            range(0, $this->cols - 1),
-            array_fill_keys(
-                range(0, $this->rows - 1),
-                new Cell(null)
-            )
-        );
+        $this->cells = array_fill(0, $this->columns * $this->rows, new Cell(null));
     }
 
     /**
@@ -48,7 +46,7 @@ class Board
             throw new \OutOfBoundsException(
                 sprintf(
                     'Column and row values must be at least 0. Max column value is %d, Max row value is %d',
-                    $this->cols - 1,
+                    $this->columns - 1,
                     $this->rows - 1
                 )
             );
@@ -66,7 +64,7 @@ class Board
         $col = (int) $col;
         $row = (int) $row;
 
-        $this->assertWithinBounds($col, $this->cols);
+        $this->assertWithinBounds($col, $this->columns);
         $this->assertWithinBounds($row, $this->rows);
     }
 
@@ -85,6 +83,16 @@ class Board
     /**
      * @param int $col
      * @param int $row
+     * @return int
+     */
+    private function index($col, $row)
+    {
+        return $col + $row * $this->columns;
+    }
+
+    /**
+     * @param int $col
+     * @param int $row
      *
      * @return Cell
      *
@@ -94,7 +102,18 @@ class Board
     {
         $this->assertCoordinatesWithinBounds($col, $row);
 
-        return $this->cells[$col][$row];
+        return $this->cells[$this->index($col, $row)];
+    }
+
+    /**
+     * @param $col
+     * @param $row
+     * @return Player
+     */
+    public function ownerAt($col, $row)
+    {
+        $cell = $this->at($col, $row);
+        return $cell->owner();
     }
 
     /**
@@ -106,14 +125,14 @@ class Board
     }
 
     /**
-     * @return aint
+     * @return int
      */
-    public function cols()
+    public function colCount()
     {
-        return $this->cols;
+        return $this->columns;
     }
 
-    public function rows()
+    public function rowCount()
     {
         return $this->rows;
     }
@@ -131,10 +150,6 @@ class Board
         $this->assertCoordinatesWithinBounds($col, $row);
         $this->assertBoardIsEmptyAt($col, $row);
 
-        $this->cells[$col][$row] = new Cell($player);
+        $this->cells[$this->index($col, $row)] = new Cell($player);
     }
 }
-
-
-
-

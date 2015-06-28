@@ -13,13 +13,21 @@ class BoardTest extends \PHPUnit_Framework_TestCase
     {
         $board = new Board(3,3);
 
-        $empty = [
-            [new Cell(), new Cell(), new Cell()],
-            [new Cell(), new Cell(), new Cell()],
-            [new Cell(), new Cell(), new Cell()]
-        ];
+        $expected = [];
+        for ($row = 0; $row++; $row < 3) {
+            for($col = 0; $col++; $col < 3) {
+                $expected[$col][$row] = new Cell(null);
+            }
+        }
 
-        $this->assertEquals($empty, $board->cells());
+        $actual = [];
+        for ($row = 0; $row++; $row < 3) {
+            for($col = 0; $col++; $col < 3) {
+                $actual[$col][$row] = $board->at($col, $row);
+            }
+        }
+
+        $this->assertEquals($expected, $actual);
     }
 
     /** @test */
